@@ -4,39 +4,50 @@ import { galleryItems } from './gallery-items.js';
 const galleryList = document.querySelector('.gallery');
 
 const createGallery = element => {
-    return element
-        .map(({ preview, original, description }) => {
-            return `
-            <li class="gallery__item">
-                <a class="gallery__link" href="${original}">
-                    <img
-                    class="gallery__image"
-                    src="${preview}"
-                    date-source="${original}"
-                    alt="${description}"
-                    />
-                </a>
-            </li>
-            `
-        })
-        .join('');
-}
+  return element
+    .map(({ preview, original, description }) => {
+      return `
+        <li class="gallery__item">
+            <a class="gallery__link" href="${original}">
+                <img
+                class="gallery__image"
+                src="${preview}"
+                data-source="${original}"
+                alt="${description}"
+                />
+            </a>
+        </li>`;
+    })
+    .join('');
+};
 
 const photosMarkup = createGallery(galleryItems);
 galleryList.insertAdjacentHTML('beforeend', photosMarkup);
 
 
+
+
 const handleGalleryClick = event => {
-    event.preventDefault();
+  event.preventDefault();
 
-    if (event.target.nodeName !== 'IMG') {
-        return;
+  if (event.target.nodeName !== 'IMG') {
+    return;
+  }
+
+  const urlOriginal = event.target.dataset.source;
+
+  const instance = basicLightbox.create(`<img src="${urlOriginal}">`);
+  instance.show();
+
+    
+  const handleOnEscKeyPress = event => {
+    if (event.key === 'Escape') {
+      instance.close();
+      window.removeEventListener('keydown', handleOnEscKeyPress);
     }
+  };
 
-    const urlOriginal = event.target.dataset.source;
-
-    const instance = basicLightbox.create(` <img src="${urlOriginal}">`);
-    instance.show();
+  window.addEventListener('keydown', handleOnEscKeyPress);
 };
 
-console.log(galleryItems);
+galleryList.addEventListener('click', handleGalleryClick);
